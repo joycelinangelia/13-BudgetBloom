@@ -7,10 +7,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class Calendar extends JFrame {
 
@@ -35,7 +33,7 @@ public class Calendar extends JFrame {
 
         // Top section
         JPanel topPanel = new JPanel(new GridLayout(3, 1));
-        monthYearLabel = new JLabel("", SwingConstants.CENTER);
+        monthYearLabel = new JLabel("Budget Bloom", SwingConstants.CENTER);
         monthYearLabel.setFont(new Font("Serif", Font.BOLD, 24));
         topPanel.add(monthYearLabel);
 
@@ -132,11 +130,6 @@ public class Calendar extends JFrame {
             return;
         }
 
-        // Update calendar title
-        YearMonth yearMonth = YearMonth.of(year, month);
-        String monthName = yearMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-        monthYearLabel.setText("Budget Bloom");
-
         // Calculate income, expenses, and total
         double income = 0;
         double expenses = 0;
@@ -164,6 +157,7 @@ public class Calendar extends JFrame {
             calendarPanel.add(dayLabel);
         }
 
+        YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate firstOfMonth = yearMonth.atDay(1);
         int firstDayOfWeek = firstOfMonth.getDayOfWeek().getValue();
         int daysInMonth = yearMonth.lengthOfMonth();
