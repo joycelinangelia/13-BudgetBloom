@@ -158,6 +158,7 @@ public class LogFrame extends JFrame {
                 }
             }
         });
+
         delCategory.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 try{
@@ -181,11 +182,6 @@ public class LogFrame extends JFrame {
         addLog.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 saveLog();
-                HomeFrame homeFrame = new HomeFrame();
-                homeFrame.setSize(getSize());
-                homeFrame.setLocation(getLocation());
-                homeFrame.setVisible(true);
-                dispose();
             }
         });
     }
@@ -325,11 +321,15 @@ public class LogFrame extends JFrame {
             String note = inputNote.getText();
             db.insertQuery(type, date, amount, currency, category, note);
             JOptionPane.showMessageDialog(LogFrame.this, "New record has been successfully added!");
+            HomeFrame homeFrame = new HomeFrame();
+            homeFrame.setSize(getSize());
+            homeFrame.setLocation(getLocation());
+            homeFrame.setVisible(true);
+            dispose();
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(LogFrame.this, e.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     public void editLog(Log log) {
         if(log.getType().equals("Income")) income.setSelected(true);
         else expense.setSelected(true);
@@ -429,12 +429,47 @@ public class LogFrame extends JFrame {
         }
         addLog.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                saveLog();
-                InfoFrame infoFrame = new InfoFrame(d,m+1,y);
-                infoFrame.setSize(getSize());
-                infoFrame.setLocation(getLocation());
-                infoFrame.setVisible(true);
-                dispose();
+                try {
+                    if (!income.isSelected() && !expense.isSelected()) {
+                        throw new IllegalArgumentException("Please select a type (Income or Expense)!");
+                    }
+                    String type = income.isSelected() ? "Income" : "Expense";
+
+                    Date date = getDateFromComboBoxes();
+                    if (date == null) {
+                        throw new IllegalArgumentException("Please select a valid date!");
+                    }
+
+                    String amountStr = inputAmount.getText();
+                    if (amountStr.isEmpty() || !amountStr.matches("\\d+(\\.\\d{1,2})?")) {
+                        throw new IllegalArgumentException("Please enter a valid amount!");
+                    }
+                    double amount = Double.parseDouble(amountStr);
+                    if (amount <= 0) {
+                        throw new IllegalArgumentException("Amount must be a positive number!");
+                    }
+
+                    String currency = (String) currencyChoices.getSelectedItem();
+                    if (currency == null || currency.isEmpty()) {
+                        throw new IllegalArgumentException("Please select a currency!");
+                    }
+
+                    String category = (String) categoryChoices.getSelectedItem();
+                    if (category == null || category.isEmpty() || category.equals("Add")) {
+                        throw new IllegalArgumentException("Please select a category!");
+                    }
+                    String note = inputNote.getText();
+                    db.insertQuery(type, date, amount, currency, category, note);
+                    JOptionPane.showMessageDialog(LogFrame.this, "New record has been successfully added!");
+                    InfoFrame infoFrame = new InfoFrame(d,m+1,y);
+                    infoFrame.setSize(getSize());
+                    infoFrame.setLocation(getLocation());
+                    infoFrame.setVisible(true);
+                    dispose();
+                } catch (IllegalArgumentException e) {
+                    JOptionPane.showMessageDialog(LogFrame.this, e.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+                }
+
             }
         });
     }
